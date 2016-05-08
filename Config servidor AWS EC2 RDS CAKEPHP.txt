@@ -1,0 +1,12 @@
+<?php 
+print_r ($authUser['role']);
+echo "-";
+print_r ($_SESSION['role']);
+?>
+en pages controller
+			$this->set('authUser', $this->Auth->user());
+			
+			
+$this->Session->read('Auth.User.role');
+
+$this->Session->destroy();
