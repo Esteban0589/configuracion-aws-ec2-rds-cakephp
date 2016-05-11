@@ -1,12 +1,89 @@
-<?php 
-print_r ($authUser['role']);
-echo "-";
-print_r ($_SESSION['role']);
-?>
-en pages controller
-			$this->set('authUser', $this->Auth->user());
-			
-			
-$this->Session->read('Auth.User.role');
 
-$this->Session->destroy();
+sudo su
+apt-get update
+apt-get upgrade -y
+apt-get dist-upgrade -y
+apt-get autoremove -y
+apt-get install apache2 php5 php5-cli php5-fpm php5-gd libssh2-php libapache2-mod-php5 php5-mcrypt acl mysql-server php5-mysql git unzip zip  php5-curl php5-json phpmyadmin -y
+
+php5enmod mcrypt
+
+nano /etc/apache2/sites-enabled/000-default.conf
+
+
+--ADD LINE ON TOP-- 
+
+Include /etc/phpmyadmin/apache.conf
+
+service apache2 restart
+
+nano /etc/phpmyadmin/config.inc.php
+
+--ADD LINES BELOW THE PMA CONFIG AREA AND FILL IN DETAILS--
+$i++;
+$cfg['Servers'][$i]['host']          = '__FILL_IN_DETAILS__';
+$cfg['Servers'][$i]['port']          = '3306';
+$cfg['Servers'][$i]['socket']        = '';
+$cfg['Servers'][$i]['connect_type']  = 'tcp';
+$cfg['Servers'][$i]['extension']     = 'mysql';
+$cfg['Servers'][$i]['compress']      = FALSE;
+$cfg['Servers'][$i]['auth_type']     = 'config';
+$cfg['Servers'][$i]['user']          = '__FILL_IN_DETAILS__';
+$cfg['Servers'][$i]['password']      = '__FILL_IN_DETAILS__';
+
+--Para instalar repo de cake
+
+cd /var/www/html/ 
+mv index.html indexViejo.html
+git clone -b 2.x git://github.com/cakephp/cakephp.git
+mv cakephp/* ./
+mv cakephp/.* ./
+
+--Config en servidor:
+mkdir app/tmp
+mkdir app/tmp/cache
+mkdir app/tmp/cache/persistent
+mkdir app/tmp/cache/models
+chmod -R 777 app/tmp
+a2enmod rewrite
+nano /etc/apache2/apache2.conf
+
+--------------------------------------------------------------------
+--BUSCAR LAS LINEAS SIGUIENTES Y DEJARLA A COMO SE VE A CONTINUACION
+
+<Directory />
+    Options FollowSymLinks
+    AllowOverride All
+#    Order deny,allow
+#    Deny from all
+</Directory>
+
+<Directory /var/www/>
+     Options FollowSymLinks
+     AllowOverride All
+     Require all granted
+</Directory>
+
+--------------------------------------------------------------------
+
+
+
+
+service apache2 restart
+
+
+
+
+NOTAS
+Docs usados
+https://www.youtube.com/watch?v=Bz-4wTGD2_Q
+http://stackoverflow.com/questions/5891802/how-do-i-change-the-root-directory-of-an-apache-server
+http://stackoverflow.com/questions/8879614/facing-a-file-permission-error-while-running-cakephp-in-ubuntu-10-4
+http://book.cakephp.org/2.0/en/installation/url-rewriting.html
+nano /etc/apache2/sites-available/000-default.conf
+
+rm -rf * .g* .h*
+
+HTTPDUSER=`ps aux | grep -E '[a]pache|[h]ttpd|[_]www|[w]ww-data|[n]ginx' | grep -v root | head -1 | cut -d\  -f1`
+setfacl -R -m u:${HTTPDUSER}:rwx app/tmp
+setfacl -R -d -m u:${HTTPDUSER}:rwx app/tmp
